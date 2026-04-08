@@ -1,16 +1,16 @@
 :root {
-  --bg: #0f1117;
-  --surface: #1a1d27;
-  --surface2: #242836;
-  --accent: #6c8cff;
-  --accent-dim: #4a6ae0;
-  --text: #e8eaf0;
-  --text-dim: #8b8fa3;
-  --text-faint: #5c6073;
+  --bg: #001a33;
+  --surface: #002744;
+  --surface2: #003562;
+  --accent: #FDB515;
+  --accent-dim: #d99a00;
+  --text: #f0edea;
+  --text-dim: #9bafc4;
+  --text-faint: #5d7a94;
   --danger: #ff6b6b;
   --success: #51cf9a;
-  --warning: #ffc46b;
-  --border: #2a2e3d;
+  --warning: #FDB515;
+  --border: #0a4068;
   --radius: 14px;
   --radius-sm: 10px;
 }
@@ -247,7 +247,7 @@ body {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(108, 140, 255, 0.4);
+  box-shadow: 0 4px 20px rgba(253, 181, 21, 0.4);
   z-index: 90;
   transition: transform 0.15s;
 }
@@ -428,8 +428,8 @@ body {
 
 /* ── Reminder banner ── */
 .reminder-banner {
-  background: linear-gradient(135deg, rgba(108, 140, 255, 0.12), rgba(81, 207, 154, 0.08));
-  border: 1px solid rgba(108, 140, 255, 0.25);
+  background: linear-gradient(135deg, rgba(253, 181, 21, 0.12), rgba(81, 207, 154, 0.08));
+  border: 1px solid rgba(253, 181, 21, 0.25);
   border-radius: var(--radius);
   padding: 14px 16px;
   margin-bottom: 20px;

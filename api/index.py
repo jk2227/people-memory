@@ -1,6 +1,7 @@
 import os
 import json
 import urllib.request
+import urllib.error
 from flask import Flask, request, jsonify
 from supabase import create_client
 

@@ -1,6 +1,4 @@
 import os
-import json
-import jwt
 from flask import Flask, request, jsonify
 from supabase import create_client
 
@@ -8,7 +6,6 @@ app = Flask(__name__)
 
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_SERVICE_KEY = os.environ.get("SUPABASE_SERVICE_KEY")
-SUPABASE_JWT_SECRET = os.environ.get("SUPABASE_JWT_SECRET")
 
 
 def get_db():
@@ -16,20 +13,16 @@ def get_db():
 
 
 def get_user_id():
-    """Extract and verify user ID from the Authorization header."""
+    """Extract and verify user ID by validating the token with Supabase."""
     auth = request.headers.get("Authorization", "")
     if not auth.startswith("Bearer "):
         return None
     token = auth.split(" ", 1)[1]
     try:
-        payload = jwt.decode(
-            token,
-            SUPABASE_JWT_SECRET,
-            algorithms=["HS256"],
-            audience="authenticated",
-        )
-        return payload.get("sub")
-    except jwt.PyJWTError:
+        db = get_db()
+        user = db.auth.get_user(token)
+        return user.user.id
+    except Exception:
         return None
 
 

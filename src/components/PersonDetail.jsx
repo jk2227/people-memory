@@ -18,6 +18,7 @@ export default function PersonDetail({ personId, onBack }) {
   const [factInput, setFactInput] = useState('')
   const [toldInput, setToldInput] = useState('')
   const [logInput, setLogInput] = useState('')
+  const [logDate, setLogDate] = useState(() => new Date().toISOString().slice(0, 10))
   const nameRef = useRef(null)
   const relRef = useRef(null)
 
@@ -65,7 +66,8 @@ export default function PersonDetail({ personId, onBack }) {
     const text = logInput.trim()
     if (!text) return
     setLogInput('')
-    addInteraction(personId, text).then(load)
+    setLogDate(new Date().toISOString().slice(0, 10))
+    addInteraction(personId, text, logDate).then(load)
   }
 
   const handleDelete = () => {
@@ -203,7 +205,13 @@ export default function PersonDetail({ personId, onBack }) {
               </button>
             </div>
           ))}
-          <div className="inline-add" style={{ marginTop: 12 }}>
+          <div className="inline-add log-add" style={{ marginTop: 12 }}>
+            <input
+              type="date"
+              className="date-input"
+              value={logDate}
+              onChange={e => setLogDate(e.target.value)}
+            />
             <input
               type="text"
               placeholder="e.g. Visited their new house, talked about..."

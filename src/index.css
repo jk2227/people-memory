@@ -510,6 +510,27 @@ body {
 
 .add-btn:active { background: var(--accent-dim); }
 
+/* ── Log add row ── */
+.log-add {
+  flex-wrap: wrap;
+}
+
+.date-input {
+  width: 140px;
+  flex-shrink: 0;
+  padding: 10px 12px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  color-scheme: dark;
+}
+
+.date-input:focus { border-color: var(--accent); }
+
 /* ── Delete ── */
 .danger-zone {
   margin-top: 40px;

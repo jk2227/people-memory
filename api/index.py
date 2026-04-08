@@ -299,9 +299,13 @@ def add_interaction(user_id, person_id):
     if not check.data:
         return jsonify({"error": "Not found"}), 404
 
+    row = {"person_id": person_id, "text": text}
+    if data.get("date"):
+        row["occurred_at"] = data["date"]
+
     result = (
         db.table("interactions")
-        .insert({"person_id": person_id, "text": text})
+        .insert(row)
         .execute()
     )
     return jsonify(result.data[0]), 201

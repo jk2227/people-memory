@@ -60,10 +60,10 @@ export const removeTold = (personId, toldId) =>
   request(`/api/people/${personId}/told/${toldId}`, { method: 'DELETE' })
 
 // Interactions
-export const addInteraction = (personId, text) =>
+export const addInteraction = (personId, text, date) =>
   request(`/api/people/${personId}/interactions`, {
     method: 'POST',
-    body: JSON.stringify({ text }),
+    body: JSON.stringify({ text, date }),
   })
 
 export const removeInteraction = (personId, interactionId) =>

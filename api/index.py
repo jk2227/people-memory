@@ -18,8 +18,14 @@ def get_user_id():
     """Verify the user's token directly against the Supabase Auth API."""
     auth_header = request.headers.get("Authorization", "")
     if not auth_header.startswith("Bearer "):
-        return None
+        return None, "No Bearer token in Authorization header"
     token = auth_header.split(" ", 1)[1]
+
+    if not SUPABASE_URL:
+        return None, "SUPABASE_URL not configured"
+    if not SUPABASE_SERVICE_KEY:
+        return None, "SUPABASE_SERVICE_KEY not configured"
+
     try:
         req = urllib.request.Request(
             f"{SUPABASE_URL}/auth/v1/user",
@@ -30,9 +36,15 @@ def get_user_id():
         )
         with urllib.request.urlopen(req) as resp:
             data = json.loads(resp.read())
-            return data.get("id")
-    except Exception:
-        return None
+            uid = data.get("id")
+            if not uid:
+                return None, f"No id in Supabase response: {list(data.keys())}"
+            return uid, None
+    except urllib.error.HTTPError as e:
+        body = e.read().decode("utf-8", errors="replace")
+        return None, f"Supabase auth error {e.code}: {body}"
+    except Exception as e:
+        return None, f"Auth exception: {str(e)}"
 
 
 def require_auth(f):
@@ -41,9 +53,9 @@ def require_auth(f):
 
     @wraps(f)
     def wrapper(*args, **kwargs):
-        user_id = get_user_id()
+        user_id, error = get_user_id()
         if not user_id:
-            return jsonify({"error": "Unauthorized"}), 401
+            return jsonify({"error": "Unauthorized", "detail": error}), 401
         return f(user_id, *args, **kwargs)
 
     return wrapper

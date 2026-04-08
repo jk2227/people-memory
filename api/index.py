@@ -1,4 +1,6 @@
 import os
+import json
+import urllib.request
 from flask import Flask, request, jsonify
 from supabase import create_client
 
@@ -13,15 +15,22 @@ def get_db():
 
 
 def get_user_id():
-    """Extract and verify user ID by validating the token with Supabase."""
-    auth = request.headers.get("Authorization", "")
-    if not auth.startswith("Bearer "):
+    """Verify the user's token directly against the Supabase Auth API."""
+    auth_header = request.headers.get("Authorization", "")
+    if not auth_header.startswith("Bearer "):
         return None
-    token = auth.split(" ", 1)[1]
+    token = auth_header.split(" ", 1)[1]
     try:
-        db = get_db()
-        user = db.auth.get_user(token)
-        return user.user.id
+        req = urllib.request.Request(
+            f"{SUPABASE_URL}/auth/v1/user",
+            headers={
+                "Authorization": f"Bearer {token}",
+                "apikey": SUPABASE_SERVICE_KEY,
+            },
+        )
+        with urllib.request.urlopen(req) as resp:
+            data = json.loads(resp.read())
+            return data.get("id")
     except Exception:
         return None
 

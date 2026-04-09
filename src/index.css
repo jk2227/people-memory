@@ -42,6 +42,7 @@ body {
   justify-content: center;
   min-height: 100dvh;
   padding: 24px;
+  background: #FDB515;
 }
 
 .login-card {
@@ -60,11 +61,12 @@ body {
   font-weight: 700;
   letter-spacing: -1px;
   margin-bottom: 12px;
+  color: #003262;
 }
 
 .login-subtitle {
   font-size: 16px;
-  color: var(--text-dim);
+  color: #003262cc;
   line-height: 1.6;
   margin-bottom: 36px;
 }

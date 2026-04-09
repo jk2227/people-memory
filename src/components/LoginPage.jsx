@@ -13,7 +13,6 @@ export default function LoginPage() {
   return (
     <div className="login-page">
       <div className="login-card">
-        <img src="/cal-bears-logo.png" alt="Cal Bears" className="login-logo" />
         <h1 className="login-title">People Memory</h1>
         <p className="login-subtitle">
           Remember the people in your life.<br />

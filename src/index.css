@@ -713,6 +713,112 @@ body {
   padding-top: 12px;
 }
 
+.clothes-top-bar {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.bulk-wash-toggle {
+  padding: 8px 14px;
+  background: none;
+  border: 1.5px solid var(--accent);
+  border-radius: 8px;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.bulk-wash-toggle:active { background: rgba(253, 181, 21, 0.1); }
+
+.bulk-wash-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--surface);
+  border: 1.5px solid var(--accent);
+  border-radius: var(--radius-sm);
+  margin-bottom: 16px;
+}
+
+.bulk-wash-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bulk-wash-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bulk-select-all {
+  padding: 6px 12px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.bulk-select-all:active { background: var(--border); }
+
+.bulk-count {
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.bulk-cancel {
+  padding: 8px 14px;
+  font-size: 13px;
+}
+
+.bulk-wash-btn {
+  padding: 8px 14px;
+  font-size: 13px;
+}
+
+.bulk-wash-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.bulk-checkbox {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 2px solid var(--text-faint);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.bulk-checkbox.checked {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+.bulk-checkbox.disabled {
+  opacity: 0.25;
+}
+
+.clothing-item.selected {
+  border-color: var(--accent);
+  background: rgba(253, 181, 21, 0.05);
+}
+
 .clothes-legend {
   display: flex;
   flex-wrap: wrap;
@@ -721,9 +827,9 @@ body {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  margin-bottom: 16px;
   font-size: 13px;
   color: var(--text-dim);
+  flex: 1;
 }
 
 .legend-item {
@@ -739,8 +845,15 @@ body {
   flex-shrink: 0;
 }
 
+.clothes-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
 .clothes-category {
-  margin-bottom: 20px;
+  min-width: 0;
 }
 
 .clothes-category-header {

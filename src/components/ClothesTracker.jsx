@@ -22,6 +22,9 @@ export default function ClothesTracker() {
   const [newName, setNewName] = useState('')
   const [newCategory, setNewCategory] = useState(CATEGORIES[0])
   const [adding, setAdding] = useState(false)
+  const [selectMode, setSelectMode] = useState(false)
+  const [selected, setSelected] = useState(new Set())
+  const [washing, setWashing] = useState(false)
 
   const load = () => {
     listClothes()
@@ -99,33 +102,96 @@ export default function ClothesTracker() {
     }
   }
 
+  const toggleSelect = (itemId) => {
+    setSelected(prev => {
+      const next = new Set(prev)
+      if (next.has(itemId)) next.delete(itemId)
+      else next.add(itemId)
+      return next
+    })
+  }
+
+  const dirtyItems = clothes.filter(c => c.wears.length > 0)
+
+  const selectAll = () => {
+    setSelected(new Set(dirtyItems.map(c => c.id)))
+  }
+
+  const handleBulkWash = async () => {
+    if (selected.size === 0) return
+    setWashing(true)
+    try {
+      await Promise.all([...selected].map(id => washClothing(id)))
+      setClothes(prev => prev.map(c =>
+        selected.has(c.id) ? { ...c, wears: [] } : c
+      ))
+      setSelected(new Set())
+      setSelectMode(false)
+    } catch (e) {
+      console.error(e)
+    }
+    setWashing(false)
+  }
+
+  const exitSelectMode = () => {
+    setSelectMode(false)
+    setSelected(new Set())
+  }
+
   if (loading) {
     return <div className="content"><div className="empty-state"><p>Loading...</p></div></div>
   }
 
   return (
     <div className="content clothes-content">
-      <div className="clothes-legend">
-        <span className="legend-item"><span className="legend-dot" style={{ background: WEAR_COLORS.BW }} />BW = Barely Worn</span>
-        <span className="legend-item"><span className="legend-dot" style={{ background: WEAR_COLORS.JL }} />JL = Just Lounged</span>
-        <span className="legend-item"><span className="legend-dot" style={{ background: WEAR_COLORS.FD }} />FD = Full Day</span>
+      <div className="clothes-top-bar">
+        <div className="clothes-legend">
+          <span className="legend-item"><span className="legend-dot" style={{ background: WEAR_COLORS.BW }} />BW = Barely Worn</span>
+          <span className="legend-item"><span className="legend-dot" style={{ background: WEAR_COLORS.JL }} />JL = Just Lounged</span>
+          <span className="legend-item"><span className="legend-dot" style={{ background: WEAR_COLORS.FD }} />FD = Full Day</span>
+        </div>
+        {dirtyItems.length > 0 && !selectMode && (
+          <button className="bulk-wash-toggle" onClick={() => setSelectMode(true)}>
+            Bulk Wash
+          </button>
+        )}
       </div>
 
-      {byCategory.filter(cat => cat.items.length > 0).map(cat => (
-        <div key={cat.name} className="clothes-category">
-          <div className="clothes-category-header">{cat.name}</div>
-          {cat.items.map(item => (
-            <ClothingItem
-              key={item.id}
-              item={item}
-              onAddWear={handleAddWear}
-              onRemoveWear={handleRemoveWear}
-              onWash={handleWash}
-              onDelete={handleDelete}
-            />
-          ))}
+      {selectMode && (
+        <div className="bulk-wash-bar">
+          <div className="bulk-wash-left">
+            <button className="bulk-select-all" onClick={selectAll}>Select All Dirty</button>
+            <span className="bulk-count">{selected.size} selected</span>
+          </div>
+          <div className="bulk-wash-right">
+            <button className="btn-cancel bulk-cancel" onClick={exitSelectMode}>Cancel</button>
+            <button className="wash-btn bulk-wash-btn" onClick={handleBulkWash} disabled={selected.size === 0 || washing}>
+              {washing ? 'Washing...' : 'Wash Selected'}
+            </button>
+          </div>
         </div>
-      ))}
+      )}
+
+      <div className="clothes-columns">
+        {byCategory.filter(cat => cat.items.length > 0).map(cat => (
+          <div key={cat.name} className="clothes-category">
+            <div className="clothes-category-header">{cat.name}</div>
+            {cat.items.map(item => (
+              <ClothingItem
+                key={item.id}
+                item={item}
+                onAddWear={handleAddWear}
+                onRemoveWear={handleRemoveWear}
+                onWash={handleWash}
+                onDelete={handleDelete}
+                selectMode={selectMode}
+                isSelected={selected.has(item.id)}
+                onToggleSelect={toggleSelect}
+              />
+            ))}
+          </div>
+        ))}
+      </div>
 
       {clothes.length === 0 && (
         <div className="empty-state">
@@ -159,15 +225,29 @@ export default function ClothesTracker() {
   )
 }
 
-function ClothingItem({ item, onAddWear, onRemoveWear, onWash, onDelete }) {
+function ClothingItem({ item, onAddWear, onRemoveWear, onWash, onDelete, selectMode, isSelected, onToggleSelect }) {
   const [expanded, setExpanded] = useState(false)
   const wears = item.wears || []
   const wearCount = wears.length
   const needsWash = wearCount >= 3 || wears.some(w => w.wear_type === 'FD')
+  const hasDirt = wears.length > 0
+
+  const handleMainClick = () => {
+    if (selectMode && hasDirt) {
+      onToggleSelect(item.id)
+    } else if (!selectMode) {
+      setExpanded(!expanded)
+    }
+  }
 
   return (
-    <div className={`clothing-item ${needsWash ? 'needs-wash' : ''}`}>
-      <div className="clothing-item-main" onClick={() => setExpanded(!expanded)}>
+    <div className={`clothing-item ${needsWash ? 'needs-wash' : ''} ${selectMode && isSelected ? 'selected' : ''}`}>
+      <div className="clothing-item-main" onClick={handleMainClick}>
+        {selectMode && (
+          <div className={`bulk-checkbox ${isSelected ? 'checked' : ''} ${!hasDirt ? 'disabled' : ''}`}>
+            {isSelected && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12" /></svg>}
+          </div>
+        )}
         <div className="clothing-item-info">
           <span className="clothing-item-name">{item.name}</span>
           <div className="clothing-wear-tags">

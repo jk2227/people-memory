@@ -263,3 +263,93 @@ def remove_interaction(user_id, person_id, interaction_id):
     q = urllib.parse.quote
     sb_request("DELETE", f"/interactions?id=eq.{q(interaction_id)}&person_id=eq.{q(person_id)}")
     return jsonify({"ok": True})
+
+
+# ─── Clothes ───
+
+
+def verify_clothing_ownership(user_id, clothing_id):
+    """Check that clothing item belongs to user."""
+    q = urllib.parse.quote
+    path = f"/clothes?select=id&id=eq.{q(clothing_id)}&user_id=eq.{q(user_id)}"
+    result = sb_request("GET", path)
+    return len(result) > 0
+
+
+@app.route("/api/clothes", methods=["GET"])
+@require_auth
+def list_clothes(user_id):
+    q = urllib.parse.quote
+    path = f"/clothes?select=*,clothing_wears(id,wear_type,created_at)&user_id=eq.{q(user_id)}&order=created_at.asc"
+    clothes = sb_request("GET", path)
+    for item in clothes:
+        wears = item.get("clothing_wears") or []
+        wears.sort(key=lambda w: w["created_at"])
+        item["wears"] = wears
+        del item["clothing_wears"]
+    return jsonify(clothes)
+
+
+@app.route("/api/clothes", methods=["POST"])
+@require_auth
+def create_clothing(user_id):
+    data = request.get_json()
+    name = (data.get("name") or "").strip()
+    category = (data.get("category") or "").strip()
+    if not name:
+        return jsonify({"error": "Name is required"}), 400
+    if not category:
+        return jsonify({"error": "Category is required"}), 400
+
+    row = {"user_id": user_id, "name": name, "category": category}
+    result = sb_request("POST", "/clothes", row)
+    result[0]["wears"] = []
+    return jsonify(result[0]), 201
+
+
+@app.route("/api/clothes/<clothing_id>", methods=["DELETE"])
+@require_auth
+def delete_clothing(user_id, clothing_id):
+    if not verify_clothing_ownership(user_id, clothing_id):
+        return jsonify({"error": "Not found"}), 404
+
+    q = urllib.parse.quote
+    sb_request("DELETE", f"/clothes?id=eq.{q(clothing_id)}&user_id=eq.{q(user_id)}")
+    return jsonify({"ok": True})
+
+
+@app.route("/api/clothes/<clothing_id>/wears", methods=["POST"])
+@require_auth
+def add_wear(user_id, clothing_id):
+    if not verify_clothing_ownership(user_id, clothing_id):
+        return jsonify({"error": "Not found"}), 404
+
+    data = request.get_json()
+    wear_type = (data.get("wear_type") or "").strip().upper()
+    if wear_type not in ("BW", "JL", "FD"):
+        return jsonify({"error": "wear_type must be BW, JL, or FD"}), 400
+
+    result = sb_request("POST", "/clothing_wears", {"clothing_id": clothing_id, "wear_type": wear_type})
+    return jsonify(result[0]), 201
+
+
+@app.route("/api/clothes/<clothing_id>/wears/<wear_id>", methods=["DELETE"])
+@require_auth
+def remove_wear(user_id, clothing_id, wear_id):
+    if not verify_clothing_ownership(user_id, clothing_id):
+        return jsonify({"error": "Not found"}), 404
+
+    q = urllib.parse.quote
+    sb_request("DELETE", f"/clothing_wears?id=eq.{q(wear_id)}&clothing_id=eq.{q(clothing_id)}")
+    return jsonify({"ok": True})
+
+
+@app.route("/api/clothes/<clothing_id>/wash", methods=["POST"])
+@require_auth
+def wash_clothing(user_id, clothing_id):
+    if not verify_clothing_ownership(user_id, clothing_id):
+        return jsonify({"error": "Not found"}), 404
+
+    q = urllib.parse.quote
+    sb_request("DELETE", f"/clothing_wears?clothing_id=eq.{q(clothing_id)}")
+    return jsonify({"ok": True})

@@ -31,7 +31,7 @@ function timeAgo(dateStr) {
   return new Date(dateStr).toLocaleDateString()
 }
 
-export default function PeopleList({ refreshKey, onSelect, onSignOut, userName }) {
+export default function PeopleList({ refreshKey, onSelect, onSignOut, userName, hideHeader }) {
   const [people, setPeople] = useState([])
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
@@ -54,31 +54,33 @@ export default function PeopleList({ refreshKey, onSelect, onSignOut, userName }
 
   return (
     <div id="listView">
-      <div className="app-header">
-        <div className="header-top">
-          <div className="app-title">People Memory</div>
-          <button className="sign-out-btn" onClick={onSignOut} title={userName}>
-            <span className="user-name">{userName?.split(' ')[0]}</span>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-              <polyline points="16 17 21 12 16 7"/>
-              <line x1="21" y1="12" x2="9" y2="12"/>
-            </svg>
-          </button>
+      {!hideHeader && (
+        <div className="app-header">
+          <div className="header-top">
+            <div className="app-title">People Memory</div>
+            <button className="sign-out-btn" onClick={onSignOut} title={userName}>
+              <span className="user-name">{userName?.split(' ')[0]}</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                <polyline points="16 17 21 12 16 7"/>
+                <line x1="21" y1="12" x2="9" y2="12"/>
+              </svg>
+            </button>
+          </div>
         </div>
-        <div className="search-wrap">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-            <circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-          </svg>
-          <input
-            type="text"
-            id="search"
-            placeholder="Search people..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            autoComplete="off"
-          />
-        </div>
+      )}
+      <div className="search-wrap people-search">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+          <circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input
+          type="text"
+          id="search"
+          placeholder="Search people..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          autoComplete="off"
+        />
       </div>
       <div className="content">
         {loading ? (

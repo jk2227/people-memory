@@ -643,6 +643,348 @@ body {
 .btn-save { background: var(--accent); color: white; }
 .btn-save:disabled { opacity: 0.6; cursor: not-allowed; }
 
+/* ── Tab bar ── */
+.tab-bar {
+  display: flex;
+  gap: 4px;
+  margin-top: 12px;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  padding: 3px;
+}
+
+.tab-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 12px;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  color: var(--text-faint);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.tab-btn:hover { background: var(--surface2); }
+
+.tab-btn.active {
+  background: var(--surface2);
+  color: var(--accent);
+}
+
+/* ── People search (when header is shared) ── */
+.people-search {
+  padding: 0 20px;
+  margin-top: 12px;
+  position: relative;
+}
+
+.people-search svg {
+  position: absolute;
+  left: 34px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-faint);
+  pointer-events: none;
+}
+
+.people-search input {
+  width: 100%;
+  padding: 12px 16px 12px 44px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 17px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.people-search input:focus { border-color: var(--accent); }
+.people-search input::placeholder { color: var(--text-faint); }
+
+/* ── Clothes tracker ── */
+.clothes-content {
+  padding-top: 12px;
+}
+
+.clothes-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.clothes-category {
+  margin-bottom: 20px;
+}
+
+.clothes-category-header {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+
+.clothing-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 6px;
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+
+.clothing-item.needs-wash {
+  border-color: var(--danger);
+  border-left: 3px solid var(--danger);
+}
+
+.clothing-item-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  cursor: pointer;
+}
+
+.clothing-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.clothing-item-name {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.clothing-wear-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.wear-tag {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid;
+  letter-spacing: 0.5px;
+}
+
+.wash-indicator {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--danger);
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.chevron {
+  color: var(--text-faint);
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+
+.chevron.open {
+  transform: rotate(180deg);
+}
+
+.clothing-item-actions {
+  padding: 8px 14px 14px;
+  border-top: 1px solid var(--border);
+}
+
+.wear-buttons {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.wear-btn {
+  flex: 1;
+  padding: 8px 10px;
+  border: 1.5px solid;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  background: none;
+  transition: background 0.15s;
+}
+
+.wear-btn.bw {
+  color: #51cf9a;
+  border-color: #51cf9a44;
+}
+
+.wear-btn.bw:active { background: #51cf9a18; }
+
+.wear-btn.jl {
+  color: #FDB515;
+  border-color: #FDB51544;
+}
+
+.wear-btn.jl:active { background: #FDB51518; }
+
+.wear-btn.fd {
+  color: #ff6b6b;
+  border-color: #ff6b6b44;
+}
+
+.wear-btn.fd:active { background: #ff6b6b18; }
+
+.wear-history {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.wear-history-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--text);
+}
+
+.wear-remove-x {
+  color: var(--text-faint);
+  font-size: 14px;
+}
+
+.wear-history-item:hover .wear-remove-x { color: var(--danger); }
+
+.clothing-bottom-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.wash-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: none;
+  border: 1.5px solid var(--success);
+  border-radius: 8px;
+  color: var(--success);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.wash-btn:active { background: rgba(81, 207, 154, 0.1); }
+
+.remove-clothing-btn {
+  padding: 8px 14px;
+  background: none;
+  border: none;
+  color: var(--text-faint);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.remove-clothing-btn:hover { color: var(--danger); }
+
+/* ── Clothes add form ── */
+.clothes-add-form {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 20px;
+  z-index: 90;
+  animation: slideSheetUp 0.2s ease-out;
+}
+
+.clothes-add-form input {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 17px;
+  outline: none;
+  margin-bottom: 10px;
+}
+
+.clothes-add-form input:focus { border-color: var(--accent); }
+.clothes-add-form input::placeholder { color: var(--text-faint); }
+
+.clothes-add-form select {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 16px;
+  outline: none;
+  margin-bottom: 12px;
+  -webkit-appearance: none;
+}
+
+.clothes-add-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.clothes-add-actions button {
+  flex: 1;
+  padding: 14px;
+  border-radius: var(--radius);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+}
+
 /* ── Scrollbar ── */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }

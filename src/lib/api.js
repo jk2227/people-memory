@@ -68,3 +68,27 @@ export const addInteraction = (personId, text, date) =>
 
 export const removeInteraction = (personId, interactionId) =>
   request(`/api/people/${personId}/interactions/${interactionId}`, { method: 'DELETE' })
+
+// Clothes
+export const listClothes = () => request('/api/clothes')
+
+export const createClothing = (name, category) =>
+  request('/api/clothes', {
+    method: 'POST',
+    body: JSON.stringify({ name, category }),
+  })
+
+export const deleteClothing = (id) =>
+  request(`/api/clothes/${id}`, { method: 'DELETE' })
+
+export const addWear = (clothingId, wearType) =>
+  request(`/api/clothes/${clothingId}/wears`, {
+    method: 'POST',
+    body: JSON.stringify({ wear_type: wearType }),
+  })
+
+export const removeWear = (clothingId, wearId) =>
+  request(`/api/clothes/${clothingId}/wears/${wearId}`, { method: 'DELETE' })
+
+export const washClothing = (clothingId) =>
+  request(`/api/clothes/${clothingId}/wash`, { method: 'POST' })

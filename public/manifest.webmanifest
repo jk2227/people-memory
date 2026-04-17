@@ -4,7 +4,7 @@
   "description": "Remember the people you meet",
   "start_url": "/",
   "scope": "/",
-  "display": "standalone",
+  "display": "browser",
   "orientation": "portrait",
   "background_color": "#ffffff",
   "theme_color": "#003262",

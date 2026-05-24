@@ -3,6 +3,7 @@ import json
 import urllib.request
 import urllib.error
 import urllib.parse
+from datetime import datetime, timezone
 from functools import wraps
 from flask import Flask, request, jsonify
 
@@ -352,4 +353,74 @@ def wash_clothing(user_id, clothing_id):
 
     q = urllib.parse.quote
     sb_request("DELETE", f"/clothing_wears?clothing_id=eq.{q(clothing_id)}")
+    return jsonify({"ok": True})
+
+
+# ─── Stories ───
+
+
+def verify_story_ownership(user_id, story_id):
+    q = urllib.parse.quote
+    path = f"/stories?select=id&id=eq.{q(story_id)}&user_id=eq.{q(user_id)}"
+    result = sb_request("GET", path)
+    return len(result) > 0
+
+
+@app.route("/api/stories", methods=["GET"])
+@require_auth
+def list_stories(user_id):
+    q = urllib.parse.quote
+    path = f"/stories?select=*&user_id=eq.{q(user_id)}&order=updated_at.desc"
+    return jsonify(sb_request("GET", path))
+
+
+@app.route("/api/stories", methods=["POST"])
+@require_auth
+def create_story(user_id):
+    data = request.get_json() or {}
+    row = {
+        "user_id": user_id,
+        "title": (data.get("title") or "").strip(),
+        "content": data.get("content") or "",
+    }
+    result = sb_request("POST", "/stories", row)
+    return jsonify(result[0]), 201
+
+
+@app.route("/api/stories/<story_id>", methods=["GET"])
+@require_auth
+def get_story(user_id, story_id):
+    q = urllib.parse.quote
+    result = sb_request("GET", f"/stories?id=eq.{q(story_id)}&user_id=eq.{q(user_id)}")
+    if not result:
+        return jsonify({"error": "Not found"}), 404
+    return jsonify(result[0])
+
+
+@app.route("/api/stories/<story_id>", methods=["PUT"])
+@require_auth
+def update_story(user_id, story_id):
+    if not verify_story_ownership(user_id, story_id):
+        return jsonify({"error": "Not found"}), 404
+
+    data = request.get_json() or {}
+    updates = {}
+    if "title" in data:
+        updates["title"] = (data["title"] or "").strip()
+    if "content" in data:
+        updates["content"] = data["content"] or ""
+
+    if updates:
+        updates["updated_at"] = datetime.now(timezone.utc).isoformat()
+        q = urllib.parse.quote
+        sb_request("PATCH", f"/stories?id=eq.{q(story_id)}", updates)
+
+    return jsonify({"ok": True})
+
+
+@app.route("/api/stories/<story_id>", methods=["DELETE"])
+@require_auth
+def delete_story(user_id, story_id):
+    q = urllib.parse.quote
+    sb_request("DELETE", f"/stories?id=eq.{q(story_id)}&user_id=eq.{q(user_id)}")
     return jsonify({"ok": True})

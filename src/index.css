@@ -1098,6 +1098,104 @@ body {
   border: none;
 }
 
+/* ── Stories ── */
+.stories-content {
+  padding-top: 16px;
+}
+
+.stories-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.story-card {
+  text-align: left;
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.story-card:hover, .story-card:active {
+  background: var(--surface2);
+  border-color: var(--accent-dim);
+}
+
+.story-card-title {
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.story-card-preview {
+  font-size: 14px;
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 6px;
+}
+
+.story-card-date {
+  font-size: 12px;
+  color: var(--text-faint);
+}
+
+.story-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.story-title-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid var(--border);
+  color: var(--text);
+  font-size: 24px;
+  font-weight: 700;
+  padding: 8px 0;
+  outline: none;
+}
+
+.story-title-input:focus { border-bottom-color: var(--accent); }
+.story-title-input::placeholder { color: var(--text-faint); }
+
+.story-content-input {
+  width: 100%;
+  min-height: 50vh;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1.6;
+  padding: 14px 16px;
+  outline: none;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.story-content-input:focus { border-color: var(--accent); }
+.story-content-input::placeholder { color: var(--text-faint); }
+
+.story-delete-btn {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  color: var(--danger);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 8px 0;
+  margin-top: 8px;
+}
+
 /* ── Scrollbar ── */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }

@@ -92,3 +92,23 @@ export const removeWear = (clothingId, wearId) =>
 
 export const washClothing = (clothingId) =>
   request(`/api/clothes/${clothingId}/wash`, { method: 'POST' })
+
+// Stories
+export const listStories = () => request('/api/stories')
+
+export const getStory = (id) => request(`/api/stories/${id}`)
+
+export const createStory = (title, content) =>
+  request('/api/stories', {
+    method: 'POST',
+    body: JSON.stringify({ title, content }),
+  })
+
+export const updateStory = (id, data) =>
+  request(`/api/stories/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  })
+
+export const deleteStory = (id) =>
+  request(`/api/stories/${id}`, { method: 'DELETE' })

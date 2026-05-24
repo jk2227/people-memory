@@ -5,6 +5,7 @@ import PeopleList from './components/PeopleList'
 import PersonDetail from './components/PersonDetail'
 import AddPersonModal from './components/AddPersonModal'
 import ClothesTracker from './components/ClothesTracker'
+import Stories from './components/Stories'
 
 export default function App() {
   const [session, setSession] = useState(null)
@@ -63,7 +64,7 @@ export default function App() {
       <div className="app-header">
         <div className="header-top">
           <div className="app-title">
-            {activeTab === 'people' ? 'People Memory' : 'Clothes Tracker'}
+            {activeTab === 'people' ? 'People Memory' : activeTab === 'clothes' ? 'Clothes Tracker' : 'Stories'}
           </div>
           <button className="sign-out-btn" onClick={handleSignOut} title={session.user.user_metadata?.full_name || session.user.email}>
             <span className="user-name">{(session.user.user_metadata?.full_name || session.user.email)?.split(' ')[0]}</span>
@@ -96,10 +97,20 @@ export default function App() {
             </svg>
             Clothes
           </button>
+          <button
+            className={`tab-btn ${activeTab === 'stories' ? 'active' : ''}`}
+            onClick={() => setActiveTab('stories')}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4V4z"/>
+              <path d="M8 8h8M8 12h8M8 16h5"/>
+            </svg>
+            Stories
+          </button>
         </div>
       </div>
 
-      {activeTab === 'people' ? (
+      {activeTab === 'people' && (
         <>
           <PeopleList
             refreshKey={refreshKey}
@@ -112,9 +123,9 @@ export default function App() {
             +
           </button>
         </>
-      ) : (
-        <ClothesTracker />
       )}
+      {activeTab === 'clothes' && <ClothesTracker />}
+      {activeTab === 'stories' && <Stories />}
 
       {showAddModal && (
         <AddPersonModal

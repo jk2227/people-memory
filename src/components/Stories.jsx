@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { listStories, createStory, updateStory, deleteStory } from '../lib/api'
 
 function formatDate(iso) {
@@ -16,6 +16,7 @@ function formatDate(iso) {
 export default function Stories() {
   const [stories, setStories] = useState([])
   const [loading, setLoading] = useState(true)
+  // null = closed, 'new' = creating, otherwise a story id
   const [openId, setOpenId] = useState(null)
 
   const load = () => {
@@ -27,25 +28,15 @@ export default function Stories() {
 
   useEffect(() => { load() }, [])
 
-  const handleNew = async () => {
-    try {
-      const story = await createStory('', '')
-      setStories(prev => [story, ...prev])
-      setOpenId(story.id)
-    } catch (e) {
-      console.error(e)
-    }
-  }
-
-  const handleClose = (updated) => {
+  const handleSaved = (saved, isNew) => {
+    setStories(prev => {
+      const next = isNew
+        ? [saved, ...prev]
+        : prev.map(s => s.id === saved.id ? { ...s, ...saved } : s)
+      next.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at))
+      return next
+    })
     setOpenId(null)
-    if (updated) {
-      setStories(prev => {
-        const next = prev.map(s => s.id === updated.id ? { ...s, ...updated } : s)
-        next.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at))
-        return next
-      })
-    }
   }
 
   const handleDeleted = (id) => {
@@ -57,7 +48,9 @@ export default function Stories() {
     return <div className="content"><div className="empty-state"><p>Loading...</p></div></div>
   }
 
-  const openStory = stories.find(s => s.id === openId)
+  const editorStory = openId === 'new'
+    ? { id: null, title: '', content: '' }
+    : stories.find(s => s.id === openId)
 
   return (
     <>
@@ -82,12 +75,13 @@ export default function Stories() {
         )}
       </div>
 
-      <button className="fab" onClick={handleNew} aria-label="Add story">+</button>
+      <button className="fab" onClick={() => setOpenId('new')} aria-label="Add story">+</button>
 
-      {openStory && (
+      {editorStory && (
         <StoryEditor
-          story={openStory}
-          onClose={handleClose}
+          story={editorStory}
+          onClose={() => setOpenId(null)}
+          onSaved={handleSaved}
           onDeleted={handleDeleted}
         />
       )}
@@ -95,40 +89,39 @@ export default function Stories() {
   )
 }
 
-function StoryEditor({ story, onClose, onDeleted }) {
+function StoryEditor({ story, onClose, onSaved, onDeleted }) {
+  const isNew = story.id === null
   const [title, setTitle] = useState(story.title || '')
   const [content, setContent] = useState(story.content || '')
   const [saving, setSaving] = useState(false)
-  const lastSavedRef = useRef({ title: story.title || '', content: story.content || '' })
-  const debounceRef = useRef(null)
 
-  const flushSave = async () => {
-    const last = lastSavedRef.current
-    if (last.title === title && last.content === content) return
+  const dirty = title !== (story.title || '') || content !== (story.content || '')
+  const canSave = dirty && (title.trim() || content.trim()) && !saving
+
+  const handleSave = async () => {
+    if (!canSave) return
     setSaving(true)
     try {
-      await updateStory(story.id, { title, content })
-      lastSavedRef.current = { title, content }
+      const saved = isNew
+        ? await createStory(title, content)
+        : { ...story, title, content, updated_at: new Date().toISOString() }
+      if (!isNew) {
+        await updateStory(story.id, { title, content })
+      }
+      onSaved(saved, isNew)
     } catch (e) {
       console.error(e)
-    } finally {
       setSaving(false)
     }
   }
 
-  useEffect(() => {
-    if (debounceRef.current) clearTimeout(debounceRef.current)
-    debounceRef.current = setTimeout(flushSave, 600)
-    return () => debounceRef.current && clearTimeout(debounceRef.current)
-  }, [title, content])
-
-  const handleClose = async () => {
-    if (debounceRef.current) clearTimeout(debounceRef.current)
-    await flushSave()
-    onClose({ ...story, title, content, updated_at: new Date().toISOString() })
+  const handleClose = () => {
+    if (dirty && !confirm('Discard unsaved changes?')) return
+    onClose()
   }
 
   const handleDelete = async () => {
+    if (isNew) { onClose(); return }
     if (!confirm('Delete this story?')) return
     try {
       await deleteStory(story.id)
@@ -147,7 +140,10 @@ function StoryEditor({ story, onClose, onDeleted }) {
           </svg>
           Back
         </button>
-        <div className="modal-header-title">{saving ? 'Saving…' : 'Story'}</div>
+        <div className="modal-header-title">{isNew ? 'New Story' : 'Story'}</div>
+        <button className="story-save-btn" onClick={handleSave} disabled={!canSave}>
+          {saving ? 'Saving…' : 'Save'}
+        </button>
       </div>
       <div className="modal-body story-editor">
         <input
@@ -157,7 +153,7 @@ function StoryEditor({ story, onClose, onDeleted }) {
           value={title}
           onChange={e => setTitle(e.target.value)}
           spellCheck={false}
-          autoFocus={!story.title && !story.content}
+          autoFocus={isNew}
         />
         <textarea
           className="story-content-input"
@@ -165,7 +161,9 @@ function StoryEditor({ story, onClose, onDeleted }) {
           value={content}
           onChange={e => setContent(e.target.value)}
         />
-        <button className="story-delete-btn" onClick={handleDelete}>Delete story</button>
+        {!isNew && (
+          <button className="story-delete-btn" onClick={handleDelete}>Delete story</button>
+        )}
       </div>
     </div>
   )

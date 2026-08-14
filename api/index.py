@@ -1,11 +1,15 @@
 import os
+import sys
 import json
+import time
+import traceback
 import urllib.request
 import urllib.error
 import urllib.parse
 from datetime import datetime, timezone
 from functools import wraps
 from flask import Flask, request, jsonify
+from werkzeug.exceptions import HTTPException
 
 app = Flask(__name__)
 
@@ -25,19 +29,50 @@ def sb_headers():
     }
 
 
+class SupabaseError(Exception):
+    def __init__(self, status, body):
+        self.status = status
+        self.body = body
+        super().__init__(f"Supabase {status}: {body}")
+
+
 def sb_request(method, path, body=None, extra_headers=None):
-    """Make a request to the Supabase REST API."""
+    """Make a request to the Supabase REST API. Retries GETs once on transient errors."""
     headers = sb_headers()
     if extra_headers:
         headers.update(extra_headers)
     data = json.dumps(body).encode() if body else None
-    req = urllib.request.Request(f"{REST_URL}{path}", data=data, headers=headers, method=method)
-    try:
-        with urllib.request.urlopen(req) as resp:
-            return json.loads(resp.read())
-    except urllib.error.HTTPError as e:
-        err_body = e.read().decode("utf-8", errors="replace")
-        raise Exception(f"Supabase {e.code}: {err_body}")
+    attempts = 2 if method == "GET" else 1
+    last_err = None
+    for attempt in range(attempts):
+        req = urllib.request.Request(f"{REST_URL}{path}", data=data, headers=headers, method=method)
+        try:
+            with urllib.request.urlopen(req) as resp:
+                return json.loads(resp.read())
+        except urllib.error.HTTPError as e:
+            err_body = e.read().decode("utf-8", errors="replace")
+            last_err = SupabaseError(e.code, err_body)
+            if e.code < 500:
+                break
+        except urllib.error.URLError as e:
+            last_err = SupabaseError(0, str(e.reason))
+        if attempt < attempts - 1:
+            time.sleep(0.5)
+    raise last_err
+
+
+@app.errorhandler(SupabaseError)
+def handle_supabase_error(e):
+    print(f"Supabase request failed: {e}", file=sys.stderr)
+    return jsonify({"error": "Database temporarily unavailable, try again", "detail": str(e)}), 502
+
+
+@app.errorhandler(Exception)
+def handle_unexpected_error(e):
+    if isinstance(e, HTTPException):
+        return e
+    traceback.print_exc()
+    return jsonify({"error": "Internal server error", "detail": str(e)}), 500
 
 
 def get_user_id():
@@ -66,7 +101,11 @@ def get_user_id():
             return uid, None
     except urllib.error.HTTPError as e:
         body = e.read().decode("utf-8", errors="replace")
+        if e.code >= 500:
+            raise SupabaseError(e.code, body)
         return None, f"Auth error {e.code}: {body}"
+    except SupabaseError:
+        raise
     except Exception as e:
         return None, f"Auth exception: {str(e)}"
 

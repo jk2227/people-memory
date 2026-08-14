@@ -25,11 +25,14 @@ export default function ClothesTracker() {
   const [selectMode, setSelectMode] = useState(false)
   const [selected, setSelected] = useState(new Set())
   const [washing, setWashing] = useState(false)
+  const [error, setError] = useState(null)
 
   const load = () => {
+    setLoading(true)
+    setError(null)
     listClothes()
       .then(setClothes)
-      .catch(console.error)
+      .catch(e => setError(e.message))
       .finally(() => setLoading(false))
   }
 
@@ -140,6 +143,18 @@ export default function ClothesTracker() {
 
   if (loading) {
     return <div className="content"><div className="empty-state"><p>Loading...</p></div></div>
+  }
+
+  if (error) {
+    return (
+      <div className="content">
+        <div className="empty-state">
+          <h2>Couldn't load clothes</h2>
+          <p>{error}</p>
+          <button className="retry-btn" onClick={load}>Retry</button>
+        </div>
+      </div>
+    )
   }
 
   return (

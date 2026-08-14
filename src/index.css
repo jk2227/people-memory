@@ -239,6 +239,22 @@ body {
   line-height: 1.5;
 }
 
+.retry-btn {
+  margin-top: 16px;
+  padding: 10px 24px;
+  border: none;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #001a33;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.retry-btn:active {
+  background: var(--accent-dim);
+}
+
 /* ── FAB ── */
 .fab {
   position: fixed;

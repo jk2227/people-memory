@@ -35,14 +35,17 @@ export default function PeopleList({ refreshKey, onSelect, onSignOut, userName, 
   const [people, setPeople] = useState([])
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [retryKey, setRetryKey] = useState(0)
 
   useEffect(() => {
     setLoading(true)
+    setError(null)
     listPeople()
       .then(setPeople)
-      .catch(console.error)
+      .catch(e => setError(e.message))
       .finally(() => setLoading(false))
-  }, [refreshKey])
+  }, [refreshKey, retryKey])
 
   const q = search.toLowerCase().trim()
   const filtered = q
@@ -85,6 +88,12 @@ export default function PeopleList({ refreshKey, onSelect, onSignOut, userName, 
       <div className="content">
         {loading ? (
           <div className="empty-state"><p>Loading...</p></div>
+        ) : error ? (
+          <div className="empty-state">
+            <h2>Couldn't load people</h2>
+            <p>{error}</p>
+            <button className="retry-btn" onClick={() => setRetryKey(k => k + 1)}>Retry</button>
+          </div>
         ) : filtered.length === 0 && people.length === 0 ? (
           <div className="empty-state">
             <h2>No people yet</h2>

@@ -16,13 +16,16 @@ function formatDate(iso) {
 export default function Stories() {
   const [stories, setStories] = useState([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   // null = closed, 'new' = creating, otherwise a story id
   const [openId, setOpenId] = useState(null)
 
   const load = () => {
+    setLoading(true)
+    setError(null)
     listStories()
       .then(setStories)
-      .catch(console.error)
+      .catch(e => setError(e.message))
       .finally(() => setLoading(false))
   }
 
@@ -46,6 +49,18 @@ export default function Stories() {
 
   if (loading) {
     return <div className="content"><div className="empty-state"><p>Loading...</p></div></div>
+  }
+
+  if (error) {
+    return (
+      <div className="content">
+        <div className="empty-state">
+          <h2>Couldn't load stories</h2>
+          <p>{error}</p>
+          <button className="retry-btn" onClick={load}>Retry</button>
+        </div>
+      </div>
+    )
   }
 
   const editorStory = openId === 'new'
